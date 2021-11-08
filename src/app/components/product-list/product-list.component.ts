@@ -11,8 +11,17 @@ import { ActivatedRoute } from '@angular/router';
 export class ProductListComponent implements OnInit {
 
   public products : Product[] = [];
-  public currentCategoryId: number | null = 0;
-  public searchMode!: boolean;
+  public currentCategoryId: number  = 1;
+  public previousCategoryId: number  = 1;
+  public searchMode: boolean= false;
+
+  //new properties for pagination
+
+  public thePageNumber: number =1;
+  public thePageSize : number = 5;
+  public theTotalElements: number = 0;
+
+  previousKeyword : string = '';
 
   constructor(
     private productService:ProductService,
@@ -35,10 +44,17 @@ export class ProductListComponent implements OnInit {
 
   handleSearchProducts() {
     const theKeyword :string = this.route.snapshot.paramMap.get('keyword')!;
-    this.productService.searchProducts(theKeyword)
-      .subscribe(data => {
-        this.products = data;
-      });
+
+    if(this.previousKeyword != theKeyword){
+      this.thePageNumber = 1;
+    }
+
+    this.previousKeyword = theKeyword;
+
+    this.productService.searchProductsPaginate( this.thePageNumber -1,
+                                                this.thePageSize,
+                                                theKeyword)
+        .subscribe(this.processResult());
   }
 
   handleListProducts(){
@@ -52,10 +68,39 @@ export class ProductListComponent implements OnInit {
       this.currentCategoryId =1;
     }
 
-    this.productService.getProductsList(this.currentCategoryId)
-      .subscribe( data =>{
-        this.products = data;
-    });
+    //si cambia la categoría se reinicia y vuelve a la pagina 1 de la paginación
+    if(this.previousCategoryId != this.currentCategoryId){
+      this.thePageNumber =1;
+    }
+
+    this.previousCategoryId = this.currentCategoryId;
+
+    this.productService.getProductsListPaginate(this.thePageNumber -1, this.thePageSize, this.currentCategoryId)
+      .subscribe(this.processResult());
+  }
+
+  processResult(){
+    return (data: { _embedded:{ 
+      products: Product[]; 
+    }; 
+      page: {
+        number: number; 
+        size: number; 
+        totalElements: number; 
+      }; 
+    }) =>{
+
+      this.products = data._embedded.products;
+      this.thePageNumber = data.page.number +1;
+      this.thePageSize = data.page.size;
+      this.theTotalElements =  data.page.totalElements;
+    }
+  }
+
+  updatePageSize(pageSize:number){
+    this.thePageSize = pageSize;
+    this.thePageNumber = 1;
+    this.listProducts();
   }
 
 }
