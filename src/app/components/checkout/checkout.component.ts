@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UtilsService } from '../../services/utils.service';
 import { Country } from '../../common/country';
 import { State } from '../../common/state';
+import { UtilValidators } from '../../validators/util-validators';
 
 @Component({
   selector: 'app-checkout',
@@ -29,31 +30,31 @@ export class CheckoutComponent implements OnInit {
   ngOnInit(): void {
     this.checkoutFormGroup = this.fb.group({
       customer : this.fb.group({
-        firstName:[''],
-        lastName: [''],
-        email: ['']
+        firstName:new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace]),
+        lastName: new FormControl('',[Validators.required, Validators.minLength(2)]),
+        email: new FormControl('',[Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')])
       }),
       shippingAddress : this.fb.group({
-        country:[''],
-        street: [''],
-        city: [''],
-        state: [''],
-        zipCode: ['']
+        country: new FormControl('',[Validators.required]),
+        street: new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace]),
+        city: new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace]),
+        state: new FormControl('',[Validators.required]),
+        zipCode: new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace])
       }),
       billingAddress : this.fb.group({
-        country:[''],
-        street: [''],
-        city: [''],
-        state: [''],
-        zipCode: ['']
+        country: new FormControl('',[Validators.required]),
+        street: new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace]),
+        city: new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace]),
+        state: new FormControl('',[Validators.required]),
+        zipCode: new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace])
       }),
       creditCard : this.fb.group({
-        cardType:[''],
-        nameOnCard: [''],
-        cardNumber: [''],
-        securityCode: [''],
-        expirationMonth: [''],
-        expirationYear: ['']
+        cardType:new FormControl('',[Validators.required]),
+        nameOnCard: new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace]),
+        cardNumber: new FormControl('',[Validators.required, Validators.pattern('[0-9]{16}')]),
+        securityCode: new FormControl('',[Validators.required,Validators.pattern('[0-9]{3}')]),
+        expirationMonth: new FormControl('',[Validators.required]),
+        expirationYear: new FormControl('',[Validators.required]),
       })
     });
 
@@ -78,13 +79,42 @@ export class CheckoutComponent implements OnInit {
         console.log("The countries: "+ JSON.stringify(data));
         this.countries = data;
       }
-     )
+     );
   }
+
+  get firstName(){return this.checkoutFormGroup.get('customer.firstName');}
+  get lastName(){return this.checkoutFormGroup.get('customer.lastName');}
+  get email(){return this.checkoutFormGroup.get('customer.email');}
+
+  get shippingAddressCountry(){return this.checkoutFormGroup.get('shippingAddress.country');}
+  get shippingAddressState(){return this.checkoutFormGroup.get('shippingAddress.state');}
+  get shippingAddressStreet(){return this.checkoutFormGroup.get('shippingAddress.street');}
+  get shippingAddressCity(){return this.checkoutFormGroup.get('shippingAddress.city');}
+  get shippingAddressZipCode(){return this.checkoutFormGroup.get('shippingAddress.zipCode');}
+
+  get billingAddressCountry(){return this.checkoutFormGroup.get('billingAddress.country')}
+  get billingAddressState(){return this.checkoutFormGroup.get('billingAddress.state')}
+  get billingAddressStreet(){return this.checkoutFormGroup.get('billingAddress.street')}
+  get billingAddressCity(){return this.checkoutFormGroup.get('billingAddress.city')}
+  get billingAddressZipCode(){return this.checkoutFormGroup.get('billingAddress.zipCode')}
+
+  get creditCardCardType(){return this.checkoutFormGroup.get('creditCard.cardType');}
+  get creditCardNameOnCard(){return this.checkoutFormGroup.get('creditCard.nameOnCard');}
+  get creditCardCardNumber(){return this.checkoutFormGroup.get('creditCard.cardNumber');}
+  get creditCardSecurityCode(){return this.checkoutFormGroup.get('creditCard.securityCode');}
+
+
 
   onSubmit(){
     console.log("handling");
     console.log(this.checkoutFormGroup.get('customer')?.value);
     console.log(this.checkoutFormGroup.get('shippingAddress')?.value);
+
+    if(this.checkoutFormGroup.invalid){
+      this.checkoutFormGroup.markAllAsTouched();
+    }
+
+    console.log("checkoutFormGroup is valid: "  + this.checkoutFormGroup.valid);
   }
 
   copyShippingAdressToBillingAdress(event: { target: { checked: any; }; }){
@@ -92,12 +122,12 @@ export class CheckoutComponent implements OnInit {
       this.checkoutFormGroup.controls['billingAddress'].setValue(this.checkoutFormGroup.controls['shippingAddress'].value);
       
       //posible bug
-      //this.billingAddressStates = this.shippingAddressStates;
+      this.billingAddressStates = this.shippingAddressStates;
     }else{
       this.checkoutFormGroup.controls['billingAddress'].reset();
 
       //posible bug
-      //this.billingAddressState = [];
+      this.billingAddressStates = [];
     }
   }
 
@@ -135,10 +165,10 @@ export class CheckoutComponent implements OnInit {
       .subscribe(data => {
         if(formGroupName === 'shippingAddress'){
           this.shippingAddressStates = data;
-        }else{
+        }else if(formGroupName === 'billingAddress'){
           this.billingAddressStates = data;
         }
-        formGroup?.get('state')?.setValue(data[0]);
+        formGroup!.get('state')!.setValue(data[0]);
       });
   }
 
