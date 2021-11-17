@@ -4,6 +4,7 @@ import { UtilsService } from '../../services/utils.service';
 import { Country } from '../../common/country';
 import { State } from '../../common/state';
 import { UtilValidators } from '../../validators/util-validators';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-checkout',
@@ -25,9 +26,13 @@ export class CheckoutComponent implements OnInit {
   billingAddressStates : State[]= []; 
 
   constructor(private fb:FormBuilder,
-              private utilsService:UtilsService) { }
+              private utilsService:UtilsService,
+              private cartService: CartService) { }
 
   ngOnInit(): void {
+
+    this.reviewCartDetails();
+
     this.checkoutFormGroup = this.fb.group({
       customer : this.fb.group({
         firstName:new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace]),
@@ -59,7 +64,6 @@ export class CheckoutComponent implements OnInit {
     });
 
     //poblar el arrglo de meses
-
     const startMonth: number = new Date().getMonth() +1;
 
     this.utilsService.getCreditCardMonths(startMonth)
@@ -81,7 +85,7 @@ export class CheckoutComponent implements OnInit {
       }
      );
   }
-
+  
   get firstName(){return this.checkoutFormGroup.get('customer.firstName');}
   get lastName(){return this.checkoutFormGroup.get('customer.lastName');}
   get email(){return this.checkoutFormGroup.get('customer.email');}
@@ -103,8 +107,6 @@ export class CheckoutComponent implements OnInit {
   get creditCardCardNumber(){return this.checkoutFormGroup.get('creditCard.cardNumber');}
   get creditCardSecurityCode(){return this.checkoutFormGroup.get('creditCard.securityCode');}
 
-
-
   onSubmit(){
     console.log("handling");
     console.log(this.checkoutFormGroup.get('customer')?.value);
@@ -115,6 +117,17 @@ export class CheckoutComponent implements OnInit {
     }
 
     console.log("checkoutFormGroup is valid: "  + this.checkoutFormGroup.valid);
+  }
+
+  //suscribe los valores de total cantidad y total precio
+  reviewCartDetails() {
+    this.cartService.totalQuantity.subscribe(
+      totalQuantity => this.totalQuantity = totalQuantity
+    );
+
+    this.cartService.totalPrice.subscribe(
+      totalPrice => this.totalPrice = totalPrice
+    );
   }
 
   copyShippingAdressToBillingAdress(event: { target: { checked: any; }; }){
