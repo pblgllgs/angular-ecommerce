@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 //modulos
-import { RouterModule, Routes } from '@angular/router';
+import { Router, RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from "@angular/common/http";
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -19,8 +19,29 @@ import { ProductDetailComponent } from './components/product-detail/product-deta
 import { CartStatusComponent } from './components/cart-status/cart-status.component';
 import { CartDetailsComponent } from './components/cart-details/cart-details.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
+import { LoginComponent } from './components/login/login.component';
+import { LoginStatusComponent } from './components/login-status/login-status.component';
+
+import {
+  OKTA_CONFIG,
+  OktaAuthModule,
+  OktaCallbackComponent
+} from '@okta/okta-angular';
+
+import myAppConfig from './config/my-app-config';
+
+const oktaConfig = Object.assign({
+  onAuthRequired: (injector: { get: (arg0: typeof Router) => any; }) => {
+    const router = injector.get(Router);
+
+    // Redirect the user to your custom login page
+    router.navigate(['/login']);
+  }
+}, myAppConfig.oidc);
 
 const routes :Routes = [
+  {path: 'login/callback', component: OktaCallbackComponent},
+  {path: 'login', component: LoginComponent},
   {path:'checkout', component: CheckoutComponent},
   {path:'category/:id', component: ProductListComponent},
   {path:'category', component: ProductListComponent},
@@ -41,16 +62,19 @@ const routes :Routes = [
     ProductDetailComponent,
     CartStatusComponent,
     CartDetailsComponent,
-    CheckoutComponent
+    CheckoutComponent,
+    LoginComponent,
+    LoginStatusComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     NgbModule,
     ReactiveFormsModule,
+    OktaAuthModule,
     RouterModule.forRoot(routes)
   ],
-  providers: [ProductService],
+  providers: [ProductService, {provide: OKTA_CONFIG, useValue: oktaConfig}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
