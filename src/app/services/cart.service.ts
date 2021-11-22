@@ -8,7 +8,7 @@ import { CartItem } from '../common/cartItem';
 export class CartService {
 
   cartItems : CartItem[] = [];
-  //BehaviorSubject tiene un buffer del ultimo evento, una vez subscrito el subscriptor recive el ultimo evento previo a la subcripción
+  //BehaviorSubject tiene un buffer del ultimo evento, una vez subscrito el subscriptor recibe el ultimo evento previo a la suscripcion
   totalPrice : Subject<number> =  new BehaviorSubject<number>(0);
   totalQuantity : Subject<number> =  new BehaviorSubject<number>(0);
 
@@ -27,7 +27,7 @@ export class CartService {
     }
    }
 
-  addTocart(theCartItem :CartItem){
+  addToCart(theCartItem :CartItem){
 
     //revisamos si el item esta en el carro
     let alreadyExistInCart : boolean =  false;
@@ -74,7 +74,7 @@ export class CartService {
       totalQuantityValue += currentCartItem.quantity;
     }
 
-    //publica los nuevos valores, y las subscripciones reciven los valores actualizandolos
+    //publica los nuevos valores, y las suscripciones reciben los valores actualizandolos
     this.totalPrice.next(totalPriceValue);
     this.totalQuantity.next(totalQuantityValue);
 
