@@ -30,6 +30,8 @@ export class CheckoutComponent implements OnInit {
   shippingAddressStates : State[]= []; 
   billingAddressStates : State[]= []; 
 
+  storage: Storage =  sessionStorage;
+
   constructor(private fb:FormBuilder,
               private utilsService:UtilsService,
               private cartService: CartService,
@@ -40,11 +42,13 @@ export class CheckoutComponent implements OnInit {
 
     this.reviewCartDetails();
 
+    const theEmail = JSON.parse(this.storage.getItem('userEmail')!);
+
     this.checkoutFormGroup = this.fb.group({
       customer : this.fb.group({
         firstName:new FormControl('',[Validators.required, Validators.minLength(2), UtilValidators.notOnlyWhitespace]),
         lastName: new FormControl('',[Validators.required, Validators.minLength(2)]),
-        email: new FormControl('',[Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')])
+        email: new FormControl(theEmail,[Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')])
       }),
       shippingAddress : this.fb.group({
         country: new FormControl('',[Validators.required]),
