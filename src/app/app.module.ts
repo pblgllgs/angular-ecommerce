@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 //modulos
 import { Router, RouterModule, Routes } from '@angular/router';
-import { HttpClientModule } from "@angular/common/http";
+import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -32,6 +32,7 @@ import {
 import myAppConfig from './config/my-app-config';
 import { MembersPageComponent } from './components/members-page/members-page.component';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
+import { AuthInterceptorService } from './services/auth-interceptor.service';
 
 const oktaConfig = Object.assign({
   onAuthRequired: (oktaAuth: any,injector: { get: (arg0: typeof Router) => any; }) => {
@@ -43,9 +44,9 @@ const oktaConfig = Object.assign({
 }, myAppConfig.oidc);
 
 const routes :Routes = [
-  {path: 'login/callback', component: OktaCallbackComponent, canActivate: [OktaAuthGuard]},
-  {path: 'order-history', component: OrderHistoryComponent},
+  {path: 'order-history', component: OrderHistoryComponent, canActivate: [OktaAuthGuard]},
   {path: 'members', component: MembersPageComponent, canActivate: [OktaAuthGuard]},
+  {path: 'login/callback', component: OktaCallbackComponent},
   {path: 'login', component: LoginComponent},
   {path:'checkout', component: CheckoutComponent},
   {path:'category/:id', component: ProductListComponent},
@@ -81,7 +82,12 @@ const routes :Routes = [
     OktaAuthModule,
     RouterModule.forRoot(routes)
   ],
-  providers: [ProductService, {provide: OKTA_CONFIG, useValue: oktaConfig}],
+  providers: 
+  [
+    ProductService,
+    {provide: OKTA_CONFIG, useValue: oktaConfig},
+    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
