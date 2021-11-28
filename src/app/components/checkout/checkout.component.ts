@@ -42,7 +42,7 @@ export class CheckoutComponent implements OnInit {
 
     this.reviewCartDetails();
 
-    const theEmail = JSON.parse(this.storage.getItem('userEmail')!);
+    const theEmail = JSON.parse(this.storage.getItem('userEmail')|| '{}');
 
     this.checkoutFormGroup = this.fb.group({
       customer : this.fb.group({

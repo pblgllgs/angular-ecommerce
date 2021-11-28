@@ -19,7 +19,7 @@ export class OrderHistoryComponent implements OnInit {
   }
 
   handlerOrderHistory() {
-    const theEmail = JSON.parse(this.storage.getItem('userEmail')!);
+    const theEmail = JSON.parse(this.storage.getItem('userEmail') || '{}');
 
     this.orderHistoryService.getOrderHistory(theEmail)
       .subscribe( data =>{

@@ -24,7 +24,7 @@ export class AuthInterceptorService implements HttpInterceptor {
       //clona la respuesta y agrega al header el token
       request = request.clone({
         setHeaders: {
-          Authorization: 'Bearer' + accessToken
+          Authorization: 'Bearer ' + accessToken
         }
       });
     }

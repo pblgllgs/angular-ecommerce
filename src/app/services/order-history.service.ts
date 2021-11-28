@@ -15,7 +15,7 @@ interface GetResponseOrderHistory{
 })
 export class OrderHistoryService {
 
-  private orderUrl = 'http://localhost:8080/api/orders'
+  private orderUrl = 'http://localhost:8080/api/orders';
 
   constructor(private http:HttpClient) { }
 
