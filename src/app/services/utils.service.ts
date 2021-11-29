@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, map } from 'rxjs';
 import { Country } from '../common/country';
 import { State } from '../common/state';
+import { environment } from '../../environments/environment';
 
 interface GetResponseCountries{
   _embedded:{
@@ -22,8 +23,8 @@ interface GetResponseStates{
 })
 export class UtilsService {
 
-  private countriesUrl = 'http://localhost:8080/api/countries';
-  private statesUrl = 'http://localhost:8080/api/states';
+  private countriesUrl = environment.apiUrl + '/countries';
+  private statesUrl = environment.apiUrl + '/states';
 
   constructor(private httpClient: HttpClient) { }
 

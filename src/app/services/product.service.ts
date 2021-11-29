@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Product } from '../common/product';
 import { ProductCategory } from '../common/product-category';
+import { environment } from '../../environments/environment';
 
 interface GetResponseProducts{
   _embedded:{
@@ -29,9 +30,9 @@ interface GetResponseProductCategory{
 
 export class ProductService {
   
-  private baseUrl:string = 'http://localhost:8080/api/products';
+  private baseUrl:string = environment.apiUrl + '/products';
 
-  private categoryUrl:string = 'http://localhost:8080/api/product-category';
+  private categoryUrl:string = environment.apiUrl + '/product-category';
 
   constructor(private http:HttpClient ) { }
 
@@ -40,7 +41,6 @@ export class ProductService {
                             theCategoryId:number):Observable<GetResponseProducts>{
 
     const searchUrl = `${this.baseUrl}/search/findByCategoryId?id=${theCategoryId}&page=${thePage}&size=${thePageSize}`;
-
     return this.http.get<GetResponseProducts>(searchUrl);
   }
 
