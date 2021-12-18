@@ -80,7 +80,9 @@ const routes :Routes = [
     NgbModule,
     ReactiveFormsModule,
     OktaAuthModule,
-    RouterModule.forRoot(routes)
+    RouterModule.forRoot(routes,{
+      useHash: true
+    })
   ],
   providers: 
   [
